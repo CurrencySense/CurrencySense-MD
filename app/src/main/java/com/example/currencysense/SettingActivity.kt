@@ -12,6 +12,8 @@ class SettingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
 
+        btnHistory = findViewById(R.id.btnHistory)
+
         supportActionBar?.title = "Setting"
 
         btnHistory.setButtonText("History")
