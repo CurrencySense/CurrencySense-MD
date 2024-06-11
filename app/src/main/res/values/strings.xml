@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CurrencySense</string>
+    <string name="tanggal">Tgl.</string>
+    <string name="rupiah">Rp.</string>
 </resources>
