@@ -3,6 +3,7 @@ package com.example.currencysense
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
@@ -15,25 +16,34 @@ import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.currencysense.R
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 class CameraActivity : AppCompatActivity() {
 
     private lateinit var viewFinder: PreviewView
     private var imageCapture: ImageCapture? = null
+    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var executor: ScheduledExecutorService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
 
+        mediaPlayer = MediaPlayer.create(this, R.raw.scan_audio)
+
+        // Initialize the executor
+        executor = Executors.newSingleThreadScheduledExecutor()
+
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar()?.setDisplayShowTitleEnabled(false)
+        if (supportActionBar != null) {
+            supportActionBar?.setDisplayShowTitleEnabled(false)
         }
 
         viewFinder = findViewById(R.id.viewFinder)
@@ -115,6 +125,47 @@ class CameraActivity : AppCompatActivity() {
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
             baseContext, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Restart the audio playback when the activity is visible again
+        startAudioPlayback()
+    }
+
+    private fun startAudioPlayback() {
+        if (!this::executor.isInitialized || executor.isShutdown) {
+            executor = Executors.newSingleThreadScheduledExecutor()
+        }
+        executor.scheduleAtFixedRate({
+            if (!mediaPlayer.isPlaying) {
+                mediaPlayer.seekTo(0)
+                mediaPlayer.start()
+            }
+        }, 0, 5, TimeUnit.SECONDS)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Stop the MediaPlayer and executor when the activity stops
+        if (this::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
+            mediaPlayer.stop()
+        }
+        if (this::executor.isInitialized && !executor.isShutdown) {
+            executor.shutdownNow()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Release MediaPlayer resources
+        if (this::mediaPlayer.isInitialized) {
+            mediaPlayer.release()
+        }
+        // Shutdown the executor service
+        if (this::executor.isInitialized) {
+            executor.shutdownNow()
+        }
     }
 
     companion object {
