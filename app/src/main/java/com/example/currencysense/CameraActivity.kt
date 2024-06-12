@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -44,7 +45,7 @@ class CameraActivity : AppCompatActivity() {
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-        val captureButton: FloatingActionButton = findViewById(R.id.captureButton)
+        val captureButton: Button = findViewById(R.id.captureButton)
         captureButton.setOnClickListener { takePhoto() }
     }
 
@@ -78,8 +79,6 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun takePhoto() {
-        val imageCapture = imageCapture ?: return
-
         val photoFile = File(
             outputDirectory,
             SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis()) + ".jpg"
@@ -87,7 +86,7 @@ class CameraActivity : AppCompatActivity() {
 
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
-        imageCapture.takePicture(
+        imageCapture?.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
