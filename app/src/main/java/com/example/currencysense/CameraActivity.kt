@@ -31,7 +31,6 @@ class CameraActivity : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var executor: ScheduledExecutorService
     private lateinit var tfliteModel: TFLiteModel
-    private val nominal = arrayOf(10000, 5000, 50000) // Add this line
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,21 +108,25 @@ class CameraActivity : AppCompatActivity() {
                     Toast.makeText(baseContext, "Photo capture failed: ${exc.message}", Toast.LENGTH_SHORT).show()
                 }
 
-                // CameraActivity class remains the same except for logging
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
-                    Log.d(TAG, "Image saved URI: $savedUri")
-
                     val bitmap = BitmapFactory.decodeFile(photoFile.path)
-                    val recognizedIndex = tfliteModel.predict(bitmap)
-                    Log.d(TAG, "Recognized Index: $recognizedIndex")
+                    val prediction = tfliteModel.predict(bitmap)
 
-                    val recognizedAmount = if (recognizedIndex != -1 && recognizedIndex < nominal.size) {
-                        nominal[recognizedIndex]
-                    } else {
-                        -1
-                    }
-                    Log.d(TAG, "Recognized Amount: $recognizedAmount")
+                    // Adding logging to see prediction values
+                    Log.d("CameraActivity", "Prediction: ${prediction.contentToString()}")
+
+                    // Decipher the prediction
+                    val nominal = intArrayOf(10000, 5000, 50000)
+                    val maxPrediction = prediction.maxOrNull() ?: 0f
+                    val predClass = prediction.withIndex().maxByOrNull { it.value }?.index ?: -1
+
+                    // Apply confidence threshold
+                    val confidenceThreshold = 1.0f
+                    val recognizedAmount = if (maxPrediction > confidenceThreshold && predClass != -1) nominal[predClass] else -1
+
+                    // Logging for debugging
+                    Log.d("CameraActivity", "Max Prediction: $maxPrediction, Predicted Class: $predClass, Recognized Amount: $recognizedAmount")
 
                     val intent = Intent(this@CameraActivity, ResultActivity::class.java).apply {
                         putExtra("IMAGE_URI", savedUri.toString())
@@ -134,6 +137,7 @@ class CameraActivity : AppCompatActivity() {
             }
         )
     }
+
 
     private val outputDirectory: File by lazy {
         val mediaDir = externalMediaDirs.firstOrNull()?.let {
@@ -189,7 +193,6 @@ class CameraActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "CameraActivity"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"

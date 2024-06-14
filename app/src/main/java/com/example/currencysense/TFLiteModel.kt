@@ -14,8 +14,8 @@ class TFLiteModel(context: Context) {
 
     private val interpreter: Interpreter
 
-    // Update the input size to match the model's expected input dimensions
-    private val inputSize = 180
+    private val inputSize = 180 // Model's expected input size
+
     private val modelInputSize = inputSize * inputSize * 3 // 3 channels for RGB
 
     private val modelOutputSize = 3 // Adjust this based on your model's output size
@@ -31,7 +31,7 @@ class TFLiteModel(context: Context) {
         }
     }
 
-    fun predict(bitmap: Bitmap): Int {
+    fun predict(bitmap: Bitmap): FloatArray {
         val resizedBitmap = Bitmap.createScaledBitmap(bitmap, inputSize, inputSize, true)
 
         val byteBuffer = convertBitmapToByteBuffer(resizedBitmap)
@@ -47,18 +47,20 @@ class TFLiteModel(context: Context) {
             throw RuntimeException("Error running TensorFlow Lite inference: $e")
         }
 
-        // Find the index of the maximum value in the output array
-        return output[0].indices.maxByOrNull { output[0][it] } ?: -1
+        Log.d(TAG, "Raw model output: ${output[0].contentToString()}")
+        return output[0]
     }
 
     private fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer {
-        // Allocate the correct size of byte buffer
         val byteBuffer = ByteBuffer.allocateDirect(modelInputSize * 4) // Assuming RGB (3 channels)
         byteBuffer.order(ByteOrder.nativeOrder())
 
+        // Resize the bitmap to the model input size
+        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, inputSize, inputSize, true)
+
         // Get pixel values from the resized bitmap
         val pixels = IntArray(inputSize * inputSize)
-        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+        resizedBitmap.getPixels(pixels, 0, resizedBitmap.width, 0, 0, resizedBitmap.width, resizedBitmap.height)
 
         // Normalize pixel values and populate the byteBuffer
         var pixel = 0
@@ -77,4 +79,3 @@ class TFLiteModel(context: Context) {
         return byteBuffer
     }
 }
-
