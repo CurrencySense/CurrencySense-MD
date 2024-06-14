@@ -1,6 +1,7 @@
 package com.example.currencysense
 
 import android.Manifest
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
@@ -111,22 +112,21 @@ class CameraActivity : AppCompatActivity() {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
                     val bitmap = BitmapFactory.decodeFile(photoFile.path)
-                    val prediction = tfliteModel.predict(bitmap)
+                    val predictions = tfliteModel.predict(bitmap)
 
-                    // Adding logging to see prediction values
-                    Log.d("CameraActivity", "Prediction: ${prediction.contentToString()}")
+                    // Minimum confidence threshold
+                    val threshold = 0.95f
+                    val maxPrediction = predictions.maxOrNull() ?: -1f
+                    val maxIndex = predictions.indexOfFirst { it == maxPrediction }
 
-                    // Decipher the prediction
-                    val nominal = intArrayOf(10000, 5000, 50000)
-                    val maxPrediction = prediction.maxOrNull() ?: 0f
-                    val predClass = prediction.withIndex().maxByOrNull { it.value }?.index ?: -1
+                    val nominalValues = arrayOf(10000, 5000, 50000)
+                    val recognizedAmount = if (maxPrediction >= threshold && maxIndex in nominalValues.indices) {
+                        nominalValues[maxIndex]
+                    } else {
+                        -1
+                    }
 
-                    // Apply confidence threshold
-                    val confidenceThreshold = 1.0f
-                    val recognizedAmount = if (maxPrediction > confidenceThreshold && predClass != -1) nominal[predClass] else -1
-
-                    // Logging for debugging
-                    Log.d("CameraActivity", "Max Prediction: $maxPrediction, Predicted Class: $predClass, Recognized Amount: $recognizedAmount")
+                    Log.d(ContentValues.TAG, "Recognized Amount: $recognizedAmount with confidence: $maxPrediction")
 
                     val intent = Intent(this@CameraActivity, ResultActivity::class.java).apply {
                         putExtra("IMAGE_URI", savedUri.toString())
@@ -137,7 +137,6 @@ class CameraActivity : AppCompatActivity() {
             }
         )
     }
-
 
     private val outputDirectory: File by lazy {
         val mediaDir = externalMediaDirs.firstOrNull()?.let {
