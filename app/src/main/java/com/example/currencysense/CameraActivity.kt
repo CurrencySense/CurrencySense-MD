@@ -3,6 +3,7 @@ package com.example.currencysense
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
@@ -28,6 +29,7 @@ class CameraActivity : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var executor: ScheduledExecutorService
+    private lateinit var tfliteModel: TFLiteModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +56,8 @@ class CameraActivity : AppCompatActivity() {
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
+        tfliteModel = TFLiteModel(this)  // Initialize TFLite model
+
         val captureButton: Button = findViewById(R.id.captureButton)
         captureButton.setOnClickListener { takePhoto() }
     }
@@ -66,8 +70,8 @@ class CameraActivity : AppCompatActivity() {
 
             val preview = Preview.Builder()
                 .build()
-                .also { preview ->
-                    preview.setSurfaceProvider(viewFinder.surfaceProvider)
+                .also {
+                    it.setSurfaceProvider(viewFinder.surfaceProvider)
                 }
 
             imageCapture = ImageCapture.Builder().build()
@@ -105,8 +109,11 @@ class CameraActivity : AppCompatActivity() {
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
+                    val bitmap = BitmapFactory.decodeFile(photoFile.path)
+                    val recognizedAmount = tfliteModel.predict(bitmap)
                     val intent = Intent(this@CameraActivity, ResultActivity::class.java).apply {
                         putExtra("IMAGE_URI", savedUri.toString())
+                        putExtra("RECOGNIZED_AMOUNT", recognizedAmount)
                     }
                     startActivity(intent)
                 }
