@@ -30,7 +30,7 @@ class ResultActivity : AppCompatActivity() {
         }
 
         if (recognizedAmount != -1) {
-            amountTextView.text = "Recognized Amount: $recognizedAmount"
+            amountTextView.text = "Recognized Amount: Rp. $recognizedAmount"
         } else {
             Toast.makeText(this, "No recognized amount provided", Toast.LENGTH_SHORT).show()
         }
