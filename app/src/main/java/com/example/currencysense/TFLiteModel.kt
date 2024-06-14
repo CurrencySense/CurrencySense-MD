@@ -14,6 +14,12 @@ class TFLiteModel(context: Context) {
 
     private val interpreter: Interpreter
 
+    private val inputSize = 180 // Model's expected input size (adjusted based on ML team's recommendation)
+
+    private val modelInputSize = inputSize * inputSize * 3 // 3 channels for RGB
+
+    private val modelOutputSize = 3 // Adjusted to match the expected output size [1, 3]
+
     init {
         try {
             val modelFile = FileUtil.loadMappedFile(context, "currency_sense_model.tflite")
@@ -25,14 +31,14 @@ class TFLiteModel(context: Context) {
         }
     }
 
-    fun predict(bitmap: Bitmap): Float {
-        val inputSize = 224  // Change this to match your model's input size
+    fun predict(bitmap: Bitmap): FloatArray {
         val resizedBitmap = Bitmap.createScaledBitmap(bitmap, inputSize, inputSize, true)
 
         val byteBuffer = convertBitmapToByteBuffer(resizedBitmap)
         Log.d(TAG, "Bitmap converted to ByteBuffer for TensorFlow Lite input.")
 
-        val output = Array(1) { FloatArray(7) } // Change 7 to match your model's output size
+        val output = Array(1) { FloatArray(modelOutputSize) }
+
         try {
             interpreter.run(byteBuffer, output)
             Log.d(TAG, "Inference successful.")
@@ -41,29 +47,34 @@ class TFLiteModel(context: Context) {
             throw RuntimeException("Error running TensorFlow Lite inference: $e")
         }
 
-        return output[0][0]
+        return output[0]
     }
 
     private fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer {
-        val inputSize = 224  // Change this to match your model's input size
-        val byteBuffer = ByteBuffer.allocateDirect(4 * inputSize * inputSize * 3)
+        val byteBuffer = ByteBuffer.allocateDirect(modelInputSize * 4) // Assuming RGB (3 channels)
         byteBuffer.order(ByteOrder.nativeOrder())
 
-        val intValues = IntArray(inputSize * inputSize)
-        bitmap.getPixels(intValues, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+        // Resize the bitmap to the model input size
+        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, inputSize, inputSize, true)
 
+        // Get pixel values from the resized bitmap
+        val pixels = IntArray(inputSize * inputSize)
+        resizedBitmap.getPixels(pixels, 0, resizedBitmap.width, 0, 0, resizedBitmap.width, resizedBitmap.height)
+
+        // Normalize pixel values and populate the byteBuffer
         var pixel = 0
         for (i in 0 until inputSize) {
             for (j in 0 until inputSize) {
-                val value = intValues[pixel++]
-                byteBuffer.putFloat(((value shr 16) and 0xFF) / 255.0f)
-                byteBuffer.putFloat(((value shr 8) and 0xFF) / 255.0f)
-                byteBuffer.putFloat((value and 0xFF) / 255.0f)
+                val pixelValue = pixels[pixel++]
+
+                // Normalize pixel value to [0, 1] and put into byteBuffer
+                byteBuffer.putFloat(((pixelValue shr 16) and 0xFF) / 255.0f) // Red channel
+                byteBuffer.putFloat(((pixelValue shr 8) and 0xFF) / 255.0f)  // Green channel
+                byteBuffer.putFloat((pixelValue and 0xFF) / 255.0f)         // Blue channel
             }
         }
 
-        byteBuffer.rewind()
+        byteBuffer.rewind() // Rewind the byteBuffer before use
         return byteBuffer
     }
 }
-
