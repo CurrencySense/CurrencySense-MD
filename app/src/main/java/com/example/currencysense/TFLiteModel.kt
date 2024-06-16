@@ -22,7 +22,7 @@ class TFLiteModel(context: Context) {
 
     init {
         try {
-            val modelFile = FileUtil.loadMappedFile(context, "currency_sense_model.tflite")
+            val modelFile = FileUtil.loadMappedFile(context, "currency_sense_model2.tflite")
             interpreter = Interpreter(modelFile)
             Log.d(TAG, "TensorFlow Lite model loaded successfully.")
         } catch (e: Exception) {
