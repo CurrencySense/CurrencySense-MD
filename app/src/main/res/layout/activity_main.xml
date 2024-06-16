@@ -45,7 +45,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <com.example.currencysense.utils.CustomButton
+        <com.example.currencysense.utils.ScanButton
             android:id="@+id/scan_button"
             android:layout_width="match_parent"
             android:layout_height="277dp"
@@ -53,23 +53,20 @@
             android:background="@drawable/squircle_button"
             android:text="Scan"
             android:textColor="@android:color/white"
-            android:textSize="24sp"
-            app:backgroundTint="@color/black" />
+            android:textSize="24sp"/>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="16dp" />
 
-        <com.example.currencysense.utils.CustomButton
+        <com.example.currencysense.utils.HistoryButton
             android:id="@+id/history_button"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:text="History"
             android:textSize="24sp"
-            android:textColor="@android:color/white"
-            android:background="@drawable/green_squircle_button"
-            app:backgroundTint="@color/dark_green" />
+            android:textColor="@android:color/white"/>
 
     </LinearLayout>
 
