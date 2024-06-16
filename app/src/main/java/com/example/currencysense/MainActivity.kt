@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.currencysense.history.HistoryActivity
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -55,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         if (!this::executor.isInitialized || executor.isShutdown) {
             executor = Executors.newSingleThreadScheduledExecutor()
         }
-        executor.scheduleAtFixedRate({
+        executor.scheduleWithFixedDelay({
             if (!mediaPlayer.isPlaying) {
                 mediaPlayer.seekTo(0)
                 mediaPlayer.start()
