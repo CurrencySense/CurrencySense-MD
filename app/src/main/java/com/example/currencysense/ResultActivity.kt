@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.currencysense.utils.formatCurrency
-import java.text.DecimalFormat
 
 class ResultActivity : AppCompatActivity() {
 
