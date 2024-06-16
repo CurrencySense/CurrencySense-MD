@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.example.currencysense.utils.formatCurrency
 import java.text.DecimalFormat
 
 class ResultActivity : AppCompatActivity() {
@@ -52,10 +53,6 @@ class ResultActivity : AppCompatActivity() {
         }
     }
 
-    private fun formatCurrency(amount: Int): String {
-        val formatter = DecimalFormat("#,###")
-        return "Rp. ${formatter.format(amount)}"
-    }
 
     private fun playAudioFromRaw(rawResourceId: Int) {
         try {
