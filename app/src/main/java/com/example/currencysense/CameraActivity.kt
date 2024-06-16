@@ -2,6 +2,7 @@ package com.example.currencysense
 
 import android.Manifest
 import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
@@ -13,14 +14,19 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.camera.core.*
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.currencysense.utils.internetAccessChecked
+import com.example.currencysense.utils.showErrorMessage
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -61,7 +67,15 @@ class CameraActivity : AppCompatActivity() {
         tfliteModel = TFLiteModel(this)  // Initialize TFLite model
 
         val captureButton: Button = findViewById(R.id.captureButton)
-        captureButton.setOnClickListener { takePhoto() }
+        captureButton.setOnClickListener {
+            if (!internetAccessChecked(this)) {
+                Log.d(TAG,"No Internet Access")
+                takePhoto()
+            } else {
+                Log.d(TAG,"Internet Access")
+                showErrorMessage(this, "Feature Not Available Now!")
+            }
+        }
     }
 
     private fun startCamera() {
@@ -160,7 +174,7 @@ class CameraActivity : AppCompatActivity() {
         if (!this::executor.isInitialized || executor.isShutdown) {
             executor = Executors.newSingleThreadScheduledExecutor()
         }
-        executor.scheduleAtFixedRate({
+        executor.scheduleWithFixedDelay({
             if (!mediaPlayer.isPlaying) {
                 mediaPlayer.seekTo(0)
                 mediaPlayer.start()
