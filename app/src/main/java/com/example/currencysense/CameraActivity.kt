@@ -140,7 +140,7 @@ class CameraActivity : AppCompatActivity() {
                         -1
                     }
 
-                    Log.d(ContentValues.TAG, "Recognized Amount: $recognizedAmount with confidence: $maxPrediction")
+                    Log.d(TAG, "Recognized Amount: $recognizedAmount with confidence: $maxPrediction")
 
                     val intent = Intent(this@CameraActivity, ResultActivity::class.java).apply {
                         putExtra("IMAGE_URI", savedUri.toString())
