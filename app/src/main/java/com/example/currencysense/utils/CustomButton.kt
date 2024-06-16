@@ -42,10 +42,6 @@ class ScanButton : AppCompatButton {
         enabledBackground = ContextCompat.getDrawable(context, R.drawable.scan_button) as Drawable
     }
 
-    fun setButtonText(text: String) {
-        this.text = text
-    }
-
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         background = enabledBackground
