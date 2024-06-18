@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">CurrencySense</string>
-    <string name="tanggal">Tgl.</string>
-    <string name="rupiah">Rp.</string>
+    <string name="tanggal">Tanggal</string>
+    <string name="rupiah">Rupiah</string>
     <string name="image_classifier_failed"> Scan Gagal</string>
+    <string name="history">History</string>
+    <string name="scan">Scan</string>
 </resources>
