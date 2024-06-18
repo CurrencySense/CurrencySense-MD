@@ -32,7 +32,6 @@ fun showErrorMessage(context: Context, message: String) {
 
     builder.setPositiveButton("Close") { dialog, which ->
         dialog.dismiss()
-
     }
 
     val dialog = builder.create()
