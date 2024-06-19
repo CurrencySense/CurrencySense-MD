@@ -21,8 +21,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.currencysense.utils.internetAccessChecked
-import com.example.currencysense.utils.showErrorMessage
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -60,13 +58,8 @@ class CameraActivity : AppCompatActivity() {
 
         val captureButton: Button = findViewById(R.id.captureButton)
         captureButton.setOnClickListener {
-            if (!internetAccessChecked(this)) {
-                Log.d(TAG,"No Internet Access")
-                takePhoto()
-            } else {
-                Log.d(TAG,"Internet Access")
-                showErrorMessage(this, "Feature Not Available Now!")
-            }
+            Log.d(TAG,"No Internet Access")
+            takePhoto()
         }
     }
 
