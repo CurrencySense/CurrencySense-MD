@@ -35,7 +35,10 @@ class HistoryActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         historyAdapter = HistoryAdapter(imagesList)
         recyclerView.adapter = historyAdapter
+    }
 
+    override fun onResume() {
+        super.onResume()
         if (checkPermission()) {
             loadImages()
         } else {
