@@ -56,13 +56,6 @@ class CameraActivity : AppCompatActivity() {
 
         viewFinder = findViewById(R.id.viewFinder)
 
-        if (allPermissionsGranted()) {
-            startCamera()
-        } else {
-            ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
-        }
-
         tfliteModel = TFLiteModel(this)  // Initialize TFLite model
 
         val captureButton: Button = findViewById(R.id.captureButton)
