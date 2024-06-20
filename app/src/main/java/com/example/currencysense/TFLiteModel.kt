@@ -13,6 +13,7 @@ class TFLiteModel(context: Context) {
     private val TAG = "TFLiteModel"
 
     private val interpreter: Interpreter
+    private val interpreter2: Interpreter
 
     private val inputSize = 180 // Model's expected input size
 
@@ -22,8 +23,12 @@ class TFLiteModel(context: Context) {
 
     init {
         try {
-            val modelFile = FileUtil.loadMappedFile(context, "currency_sense_model2.tflite")
+            val modelFile = FileUtil.loadMappedFile(context, "currencysense_model.tflite")
             interpreter = Interpreter(modelFile)
+
+            val modelFile2 = FileUtil.loadMappedFile(context, "currency_sense_model2.tflite")
+            interpreter2 = Interpreter(modelFile2)
+
             Log.d(TAG, "TensorFlow Lite model loaded successfully.")
         } catch (e: Exception) {
             Log.e(TAG, "Error loading TensorFlow Lite model: ${e.message}")
@@ -31,7 +36,7 @@ class TFLiteModel(context: Context) {
         }
     }
 
-    fun predict(bitmap: Bitmap): FloatArray {
+    fun predict(bitmap: Bitmap, modelIndex: Int = 1): FloatArray {
         val resizedBitmap = Bitmap.createScaledBitmap(bitmap, inputSize, inputSize, true)
 
         val byteBuffer = convertBitmapToByteBuffer(resizedBitmap)
@@ -41,6 +46,7 @@ class TFLiteModel(context: Context) {
 
         try {
             interpreter.run(byteBuffer, output)
+            interpreter2.run(byteBuffer, output)
             Log.d(TAG, "Inference successful.")
         } catch (e: Exception) {
             Log.e(TAG, "Error running inference: ${e.message}")

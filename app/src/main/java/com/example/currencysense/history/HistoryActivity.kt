@@ -73,7 +73,7 @@ class HistoryActivity : AppCompatActivity() {
             file.isFile && (file.extension.equals("jpg", ignoreCase = true) || file.extension.equals("jpeg", ignoreCase = true) || file.extension.equals("png", ignoreCase = true))
         }
 
-        files?.forEach { file ->
+        files?.sortedByDescending { it.lastModified() }?.forEach { file ->
             imagesList.add(HistoryData(file.absolutePath, file.name, Date(file.lastModified())))
         }
 
