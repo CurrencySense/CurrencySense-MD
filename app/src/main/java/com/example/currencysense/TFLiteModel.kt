@@ -36,7 +36,7 @@ class TFLiteModel(context: Context) {
         }
     }
 
-    fun predict(bitmap: Bitmap, modelIndex: Int = 1): FloatArray {
+    fun predict(bitmap: Bitmap): FloatArray {
         val resizedBitmap = Bitmap.createScaledBitmap(bitmap, inputSize, inputSize, true)
 
         val byteBuffer = convertBitmapToByteBuffer(resizedBitmap)
