@@ -3,6 +3,13 @@
 # Introduce
 Currency Sense is an application made to facilitate blind people in identifying currencies through mobile phones, this application is made using Kotlin programming language, TensorFlow Lite, and other libraries.
 
-## Part of Currency Sense-MD
-1. Flowchart
-2. UI Design
+## Program Flow
+```mermaid
+graph
+  A(Splash)-->B(Main Activity);
+  B-->C(Scan Activity);
+  B-->D(History Activity);
+  C-->E(Camera Activiy);
+  E-->F(Result Activity);
+  D-->G(History Item Activity);
+```
